@@ -304,6 +304,8 @@ def main():
             auction_is_closed = True
 
         st.title(f'> > > > {player_name} [{team[:3]}] < < < <')
+    else:
+        player_role = ''
 
     # Get user input for auction item and initial price
     current_bidder, current_bid = get_current_bid(player_name)
