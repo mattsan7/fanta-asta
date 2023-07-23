@@ -411,13 +411,13 @@ def main():
 
     if view_users_button:
         results = c.execute('SELECT * FROM users').fetchall()
-        st.write(pd.DataFrame(results).tail())
+        st.write(pd.DataFrame(results).tail(10))
     if view_players_button:
         results = c.execute('SELECT * FROM players ORDER BY player_name').fetchall()
-        st.write(pd.DataFrame(results).head())
+        st.write(pd.DataFrame(results).head(10))
     if view_bids_button:
-        results = c.execute('SELECT * FROM bids').fetchall()
-        st.write(pd.DataFrame(results).tail())
+        results = c.execute('SELECT * FROM bids ORDER BY timestamp DESC').fetchall()
+        st.write(pd.DataFrame(results).head(10))
 
     st.header("Annulla offerta")
     undo_button = st.button("Annulla ultima offerta")
