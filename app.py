@@ -4,7 +4,8 @@ import sqlite3
 import streamlit as st
 
 
-# TODO: come gestire credenziali su streamlit?
+# TODO: come gestire credenziali su streamlit? file .toml
+# TODO: servono credenziali
 USER = "admin"
 PASSWORD = "admin"
 
@@ -272,14 +273,16 @@ def insert_user(alias, budget):
 
 
 def main():
+    # TODO: multi-page
     st.header("Fanta Asta")
 
     # ADMIN
+    # TODO: rendere il budget una variabile
     budget = 500
 
     alias = st.text_input('Inserisci il tuo nome:')
 
-    # TODO: inizializzare users (con budget)
+    # TODO: inizializzare users: lo fa l'admin per un subset di giocatori prefissato o ognuno entra e si registra?
     insert_user(alias, budget)
 
     # TODO: caricamento pagina solo dopo autenticazione
@@ -462,10 +465,13 @@ def main():
         else:
             st.error('Carica il listone', icon="⚠️")
 
-
     # TODO: aggiungere export bids per avere riassunto / backup
-    # TODO: nel caso di backup, permettere il caricamento delle bids e il calcolo della tabella users
+    # TODO: come backup, permettere il caricamento della tabella bids o players e il ricalcolo della tabella users
     # TODO: visualizzare con emoji colorate il riempimento degli slot per ogni giocatore per ruolo
+    # TODO: tabellina con ultimi acquisti e prezzi
+    # TODO: crediti residui
+    # TODO: admin può fare reset per riazzerare bids e users + owner e prezzo della tabella players
+
 
 if __name__ == "__main__":
     main()
