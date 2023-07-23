@@ -360,8 +360,10 @@ def main():
         role_is_full = (alias_info['number_def'].values[0] >= 8)
     elif player_role == 'C':
         role_is_full = (alias_info['number_mid'].values[0] >= 8)
-    else:  # player_role == 'A':
+    elif player_role == 'A':
         role_is_full = (alias_info['number_att'].values[0] >= 6)
+    else:
+        role_is_full = False
 
     remaining_budget = alias_info['budget'].values[0]
     available_budget = (remaining_budget
