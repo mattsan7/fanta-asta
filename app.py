@@ -365,15 +365,19 @@ def main():
     else:
         role_is_full = False
 
-    remaining_budget = alias_info['budget'].values[0]
-    available_budget = (remaining_budget
-                        - (3 - alias_info['number_gk'].values[0])
-                        - (8 - alias_info['number_def'].values[0])
-                        - (8 - alias_info['number_mid'].values[0])
-                        - (6 - alias_info['number_att'].values[0])
-                        + 1
-                        )
-    budget_is_over = (bid_amount > available_budget)
+    if alias_info.shape[0] > 0:
+        remaining_budget = alias_info['budget'].values[0]
+        available_budget = (remaining_budget
+                            - (3 - alias_info['number_gk'].values[0])
+                            - (8 - alias_info['number_def'].values[0])
+                            - (8 - alias_info['number_mid'].values[0])
+                            - (6 - alias_info['number_att'].values[0])
+                            + 1
+                            )
+        budget_is_over = (bid_amount > available_budget)
+    else:
+        available_budget = budget
+        budget_is_over = False
 
     if plus_one_button | plus_5_button | plus_10_button | custom_button:
         # Simulate bid placement
