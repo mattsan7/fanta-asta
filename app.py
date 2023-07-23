@@ -411,13 +411,18 @@ def main():
 
     if view_users_button:
         results = c.execute('SELECT * FROM users').fetchall()
-        st.write(pd.DataFrame(results).tail(10))
+        col_order = ['id', 'alias', 'number_gk', 'number_def', 'number_mid', 'number_att',
+                     'budget', 'last_player_acquired', 'timestamp']
+        st.write(pd.DataFrame(results, columns=col_order).tail(10))
     if view_players_button:
         results = c.execute('SELECT * FROM players ORDER BY player_name').fetchall()
-        st.write(pd.DataFrame(results).head(10))
+        col_order = ['id', 'player_name', 'player_role', 'team', 'owner', 'price']
+        # st.write(pd.DataFrame(results).head(10))
+        st.dataframe(pd.DataFrame(results, columns=col_order))
     if view_bids_button:
         results = c.execute('SELECT * FROM bids ORDER BY timestamp DESC').fetchall()
-        st.write(pd.DataFrame(results).head(10))
+        col_order = ['id', 'alias', 'player_name', 'player_role', 'team', 'bid_amount', 'success', 'timestamp']
+        st.write(pd.DataFrame(results, columns=col_order).head(10))
 
     st.header("Annulla offerta")
     undo_button = st.button("Annulla ultima offerta")
