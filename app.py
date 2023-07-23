@@ -236,7 +236,15 @@ def upload_players(file):
 
 def undo_last_bid(player_name):
 
-    return
+    c.execute("""DELETE
+                FROM bids
+                WHERE player_name = ?
+                    AND bid_amount = (SELECT MAX(bid_amount) FROM bids WHERE player_name = ?)""",
+              (player_name, player_name,)
+              )
+    conn.commit()
+
+    st.success("Ultima offerta eliminata correttamente")
 
 
 def insert_user(alias, budget):
@@ -304,7 +312,7 @@ def main():
     st.header(f"Prezzo attuale: {current_bid} [{current_bidder}]")
 
     # Get current user (you can implement authentication for multiple users)
-    current_user = alias  # TODO: Replace this with authenticated user ID
+    # TODO: authenticated user ID
     # https://blog.streamlit.io/streamlit-authenticator-part-1-adding-an-authentication-component-to-your-app/
     # TODO: aggiungere una pagina admin per vedere chi si è registrato
 
@@ -344,12 +352,14 @@ def main():
 
     # TODO: file .py con le constants (e.g. budget, mapping, numero di giocatori per ruolo...)
 
-    role_is_full = (
-        (alias_info['number_gk'].values[0] >= 3)
-        | (alias_info['number_def'].values[0] >= 8)
-        | (alias_info['number_mid'].values[0] >= 8)
-        | (alias_info['number_att'].values[0] >= 6)
-    )
+    if player_role == 'P':
+        role_is_full = (alias_info['number_gk'].values[0] >= 3)
+    elif player_role == 'D':
+        role_is_full = (alias_info['number_def'].values[0] >= 8)
+    elif player_role == 'C':
+        role_is_full = (alias_info['number_mid'].values[0] >= 8)
+    else:  # player_role == 'A':
+        role_is_full = (alias_info['number_att'].values[0] >= 6)
 
     remaining_budget = alias_info['budget'].values[0]
     available_budget = (remaining_budget
@@ -372,12 +382,12 @@ def main():
         elif budget_is_over:
             st.error(f"Non hai abbastanza budget! Puoi offrire al massimo {available_budget}")
         else:
-            place_bid(player_name, current_user, bid_amount)
+            place_bid(player_name, alias, bid_amount)
 
     # TODO: pagina dedicata
     st.title("Admin")
 
-    # TODO: dovrà selezionare lui il giocatore su cui offrire
+    # TODO: dovrà selezionare l'admin il giocatore su cui si svolge l'asta
 
     st.header("Visualizza tabelle")
     view1, view2, view3, _ = st.columns([1, 1, 1, 1])
