@@ -174,9 +174,6 @@ def close_bid(player_name):
     n_mid = current_alias_situation['number_mid'].values[0]
     n_att = current_alias_situation['number_att'].values[0]
 
-    st.write(n_gk)
-    st.write(n_def)
-
     if player_role == 'P':
         n_gk += 1
     elif player_role == 'D':
@@ -201,13 +198,13 @@ def close_bid(player_name):
             , last_player_acquired = ?
         WHERE alias = ?""",
         (
-            n_gk,
-            n_def,
-            n_mid,
-            n_att,
-            remaining_budget,
+            int(n_gk),
+            int(n_def),
+            int(n_mid),
+            int(n_att),
+            int(remaining_budget),
             player_name,
-            alias
+            alias,
         ),
     )
     conn.commit()
@@ -240,13 +237,6 @@ def upload_players(file):
 def undo_last_bid(player_name):
 
     return
-
-
-def select_player():
-
-    player_name = None
-
-    return player_name
 
 
 def insert_user(alias, budget):
@@ -295,7 +285,7 @@ def main():
         player_df['player_name'].sort_values())
     player_info = player_df.loc[player_df['player_name'] == player_name].copy()
 
-    auction_closed = False
+    auction_is_closed = False
 
     if player_info.shape[0] > 0:
         player_role = player_info['player_role'].values[0]
@@ -303,7 +293,7 @@ def main():
         player_owner = player_info['owner'].values[0]
 
         if player_owner is not None:
-            auction_closed = True
+            auction_is_closed = True
 
         st.title(f'> > > > {player_name} [{team[:3]}] < < < <')
 
@@ -314,7 +304,7 @@ def main():
     st.header(f"Prezzo attuale: {current_bid} [{current_bidder}]")
 
     # Get current user (you can implement authentication for multiple users)
-    current_user = "Samba"  # TODO: Replace this with authenticated user ID
+    current_user = alias  # TODO: Replace this with authenticated user ID
     # https://blog.streamlit.io/streamlit-authenticator-part-1-adding-an-authentication-component-to-your-app/
     # TODO: aggiungere una pagina admin per vedere chi si è registrato
 
@@ -347,14 +337,40 @@ def main():
     else:
         bid_amount = current_bid
 
+    results = c.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
+                            FROM users WHERE alias IN (?)""", (alias, )).fetchall()
+    alias_info = pd.DataFrame(results,
+                              columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
+
+    # TODO: file .py con le constants (e.g. budget, mapping, numero di giocatori per ruolo...)
+
+    role_is_full = (
+        (alias_info['number_gk'].values[0] >= 3)
+        | (alias_info['number_def'].values[0] >= 8)
+        | (alias_info['number_mid'].values[0] >= 8)
+        | (alias_info['number_att'].values[0] >= 6)
+    )
+
+    remaining_budget = alias_info['budget'].values[0]
+    available_budget = (remaining_budget
+                        - (3 - alias_info['number_gk'].values[0])
+                        - (8 - alias_info['number_def'].values[0])
+                        - (8 - alias_info['number_mid'].values[0])
+                        - (6 - alias_info['number_att'].values[0])
+                        + 1
+                        )
+    budget_is_over = (bid_amount > available_budget)
+
     if plus_one_button | plus_5_button | plus_10_button | custom_button:
         # Simulate bid placement
         if bid_amount <= current_bid:
-            # TODO: aggiungere check di poter offrire in base ai propri crediti
-            # TODO: aggiungere check che non si superino il numero di giocatori nel ruolo
             st.error("Devi rilanciare di più!")
-        elif auction_closed:
+        elif auction_is_closed:
             st.error("L'asta è già stata chiusa!")
+        elif role_is_full:
+            st.error("Hai già acquistato il numero massimo di giocatori consentito per il ruolo!")
+        elif budget_is_over:
+            st.error(f"Non hai abbastanza budget! Puoi offrire al massimo {available_budget}")
         else:
             place_bid(player_name, current_user, bid_amount)
 
@@ -377,8 +393,8 @@ def main():
         results = c.execute('SELECT * FROM users').fetchall()
         st.write(pd.DataFrame(results).tail())
     if view_players_button:
-        results = c.execute('SELECT * FROM players').fetchall()
-        st.write(pd.DataFrame(results).tail())
+        results = c.execute('SELECT * FROM players ORDER BY player_name').fetchall()
+        st.write(pd.DataFrame(results).head())
     if view_bids_button:
         results = c.execute('SELECT * FROM bids').fetchall()
         st.write(pd.DataFrame(results).tail())
