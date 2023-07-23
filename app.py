@@ -291,6 +291,8 @@ def main():
     player_df = pd.DataFrame(c.execute("SELECT player_name, player_role, team, owner FROM players").fetchall(),
                              columns=['player_name', 'player_role', 'team', 'owner'])
 
+    # TODO: dovrà selezionare l'admin il giocatore su cui si svolge l'asta
+
     player_name = st.selectbox(
         'Seleziona giocatore:',
         player_df['player_name'].sort_values())
@@ -306,7 +308,8 @@ def main():
         if player_owner is not None:
             auction_is_closed = True
 
-        st.title(f'> > > > {player_name} [{team[:3]}] < < < <')
+        # TODO: better visualization (es. background azzurro, immagini, icone...)
+        st.title(f'> > > > {player_name} [{team[:3].upper()}] < < < <')
     else:
         player_role = ''
 
@@ -399,8 +402,6 @@ def main():
 
     # TODO: pagina dedicata
     st.title("Admin")
-
-    # TODO: dovrà selezionare l'admin il giocatore su cui si svolge l'asta
 
     st.header("Visualizza tabelle")
     view1, view2, view3, _ = st.columns([1, 1, 1, 1])
