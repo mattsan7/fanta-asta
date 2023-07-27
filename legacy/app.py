@@ -10,7 +10,7 @@ USER = "admin"
 PASSWORD = "admin"
 
 # Connect to the SQLite database
-conn = sqlite3.connect("local.db")
+conn = sqlite3.connect("../local.db")
 c = conn.cursor()
 
 # Create tables if they don't exist
@@ -274,6 +274,7 @@ def insert_user(alias, budget):
 
 def main():
     # TODO: multi-page
+    # TODO: refresh button? (pointless)
     st.header("Fanta Asta")
 
     # ADMIN
