@@ -62,47 +62,50 @@ with helpers.get_db_engine() as conn:
                              columns=['player_name', 'player_role', 'team', 'owner'])
 
 player_name = st.selectbox(
-    'Seleziona giocatore:',
-    player_df['player_name'].sort_values())
-player_info = player_df.loc[player_df['player_name'] == player_name].copy()
-
-auction_is_closed = False
-
-if player_info.shape[0] > 0:
-    player_role = player_info['player_role'].values[0]
-    team = player_info['team'].values[0]
-    player_owner = player_info['owner'].values[0]
-
-    if player_owner is not None:
-        auction_is_closed = True
-        st.error('Il giocatore è già stato acquistato!')
-    else:
-        with helpers.get_db_engine() as conn:
-            results = pd.DataFrame(conn.execute("""SELECT player_name
-                                                    FROM current_player
-                                                    ORDER BY id DESC
-                                                    LIMIT 1""").fetchall(),
-                                   columns=['player_name'])
-            if len(results) == 0:
-                current_player_name = ' '
-            else:
-                current_player_name = results['player_name'].values[0]
-
-            if current_player_name != player_name:
-                conn.execute(
-                    "INSERT INTO current_player (player_name, player_role, team) "
-                    "VALUES (?, ?, ?)",
-                    (
-                        player_name,
-                        player_role,
-                        team
-                    ),
-                )
-                conn.commit()
-                st.success(f'{player_name} selezionato correttamente!')
-
+    label='Seleziona giocatore:',
+    options=['---'] + player_df['player_name'].sort_values().tolist())
+if player_name == '---':
+    player_name = None
 else:
-    player_role = ''
+    player_info = player_df.loc[player_df['player_name'] == player_name].copy()
+
+    auction_is_closed = False
+
+    if player_info.shape[0] > 0:
+        player_role = player_info['player_role'].values[0]
+        team = player_info['team'].values[0]
+        player_owner = player_info['owner'].values[0]
+
+        if player_owner is not None:
+            auction_is_closed = True
+            st.error('Il giocatore è già stato acquistato!')
+        else:
+            with helpers.get_db_engine() as conn:
+                results = pd.DataFrame(conn.execute("""SELECT player_name
+                                                        FROM current_player
+                                                        ORDER BY id DESC
+                                                        LIMIT 1""").fetchall(),
+                                       columns=['player_name'])
+                if len(results) == 0:
+                    current_player_name = ' '
+                else:
+                    current_player_name = results['player_name'].values[0]
+
+                if current_player_name != player_name:
+                    conn.execute(
+                        "INSERT INTO current_player (player_name, player_role, team) "
+                        "VALUES (?, ?, ?)",
+                        (
+                            player_name,
+                            player_role,
+                            team
+                        ),
+                    )
+                    conn.commit()
+                    st.success(f'{player_name} selezionato correttamente!')
+
+    else:
+        player_role = ''
 
 st.subheader("Annulla offerta")
 undo_button = st.button("Annulla ultima offerta")
