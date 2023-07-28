@@ -133,102 +133,104 @@ def undo_last_bid(player_name):
 
 def close_bid(player_name):
     # You can implement logic to handle bids, store them in a database, etc.
+    if player_name is None:
+        st.error('Non è stato selezionato nessun giocatore!')
+    else:
+        _, _, _, alias, bid_amount = get_current_bid()
 
-    _, _, _, alias, bid_amount = get_current_bid()
+        with get_db_engine() as conn:
+            # Update the match information in the database based on the game_id
+            conn.execute(
+                """
+                UPDATE bids 
+                SET success = 1
+                WHERE player_name = ?
+                    AND alias = ?
+                    AND bid_amount = ?
+            """,
+                (
+                    player_name,
+                    alias,
+                    bid_amount
+                ),
+            )
+            conn.commit()
 
-    with get_db_engine() as conn:
-        # Update the match information in the database based on the game_id
-        conn.execute(
-            """
-            UPDATE bids 
-            SET success = 1
-            WHERE player_name = ?
-                AND alias = ?
-                AND bid_amount = ?
-        """,
-            (
-                player_name,
-                alias,
-                bid_amount
-            ),
-        )
-        conn.commit()
+            # Update the match information in the database based on the game_id
+            conn.execute(
+                """
+                UPDATE players 
+                SET owner = ?
+                    , price = ?
+                WHERE player_name = ?
+            """,
+                (
+                    alias,
+                    bid_amount,
+                    player_name
+                ),
+            )
+            conn.commit()
 
-        # Update the match information in the database based on the game_id
-        conn.execute(
-            """
-            UPDATE players 
-            SET owner = ?
-                , price = ?
-            WHERE player_name = ?
-        """,
-            (
-                alias,
-                bid_amount,
-                player_name
-            ),
-        )
-        conn.commit()
+            player_dict = dict(conn.execute(
+                "SELECT player_name, player_role FROM players WHERE player_name IN (?)",
+                (player_name, ),
+            ).fetchall())
 
-        player_dict = dict(conn.execute(
-            "SELECT player_name, player_role FROM players WHERE player_name IN (?)",
-            (player_name, ),
-        ).fetchall())
+            player_role = player_dict[player_name]
 
-        player_role = player_dict[player_name]
+            current_alias_situation = pd.DataFrame(conn.execute("""
+                     SELECT alias, number_gk, number_def, number_mid, number_att, budget
+                     FROM users
+                     WHERE alias = ?
+                     ORDER BY timestamp DESC
+                     LIMIT 1
+                     """, (alias, )).fetchall(),
+                     columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 
-        current_alias_situation = pd.DataFrame(conn.execute("""
-                 SELECT alias, number_gk, number_def, number_mid, number_att, budget
-                 FROM users
-                 WHERE alias = ?
-                 ORDER BY timestamp DESC
-                 LIMIT 1
-                 """, (alias, )).fetchall(),
-                 columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
+            st.write(current_alias_situation)
 
-        st.write(current_alias_situation)
+            n_gk = current_alias_situation['number_gk'].values[0]
+            n_def = current_alias_situation['number_def'].values[0]
+            n_mid = current_alias_situation['number_mid'].values[0]
+            n_att = current_alias_situation['number_att'].values[0]
 
-        n_gk = current_alias_situation['number_gk'].values[0]
-        n_def = current_alias_situation['number_def'].values[0]
-        n_mid = current_alias_situation['number_mid'].values[0]
-        n_att = current_alias_situation['number_att'].values[0]
+            if player_role == 'P':
+                n_gk += 1
+            elif player_role == 'D':
+                n_def += 1
+            elif player_role == 'C':
+                n_mid += 1
+            elif player_role == 'A':
+                n_att += 1
+            else:
+                st.error('Ruolo sconosciuto! Verificare i dati')
 
-        if player_role == 'P':
-            n_gk += 1
-        elif player_role == 'D':
-            n_def += 1
-        elif player_role == 'C':
-            n_mid += 1
-        elif player_role == 'A':
-            n_att += 1
-        else:
-            st.error('Ruolo sconosciuto! Verificare i dati')
+            remaining_budget = current_alias_situation['budget'].values[0] - bid_amount
 
-        remaining_budget = current_alias_situation['budget'].values[0] - bid_amount
+            # Add the match information in the database based on the game_id
+            conn.execute(
+                """UPDATE users 
+                SET number_gk = ?
+                    , number_def = ?
+                    , number_mid = ?
+                    , number_att = ?
+                    , budget = ?
+                    , last_player_acquired = ?
+                WHERE alias = ?""",
+                (
+                    int(n_gk),
+                    int(n_def),
+                    int(n_mid),
+                    int(n_att),
+                    int(remaining_budget),
+                    player_name,
+                    alias,
+                ),
+            )
+            conn.commit()
 
-        # Add the match information in the database based on the game_id
-        conn.execute(
-            """UPDATE users 
-            SET number_gk = ?
-                , number_def = ?
-                , number_mid = ?
-                , number_att = ?
-                , budget = ?
-                , last_player_acquired = ?
-            WHERE alias = ?""",
-            (
-                int(n_gk),
-                int(n_def),
-                int(n_mid),
-                int(n_att),
-                int(remaining_budget),
-                player_name,
-                alias,
-            ),
-        )
-        conn.commit()
-
-        st.success("Match successfully Edited.")
+            st.success("Match successfully Edited.")
 
 
 def check_ownership(player_name):
