@@ -83,7 +83,10 @@ if player_info.shape[0] > 0:
                                                     ORDER BY id DESC
                                                     LIMIT 1""").fetchall(),
                                    columns=['player_name'])
-            current_player_name = results['player_name'].values[0]
+            if len(results) == 0:
+                current_player_name = ' '
+            else:
+                current_player_name = results['player_name'].values[0]
 
             if current_player_name != player_name:
                 conn.execute(
