@@ -8,6 +8,9 @@ helpers.page_init('Situazione')
 
 st.subheader('Work in progress...')
 
+# TODO: in base alla situazione attuale visualizzare gli 8 giocatori solo per il ruolo che si sta facendo
+# TODO: oppure barre cumulative (più compatte)
+
 st.write('Samba:')
 fig_P = px.pie(pd.DataFrame({'P': [1/3, 2/3], 'Names': ['Presi', 'Da Prendere']}), title='P',
                values='P', names='Names', hole=0.4, color='Names', color_discrete_map={'Presi': 'royalblue',
