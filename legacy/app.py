@@ -10,7 +10,7 @@ USER = "admin"
 PASSWORD = "admin"
 
 # Connect to the SQLite database
-conn = sqlite3.connect("../local.db")
+conn = sqlite3.connect("../database.db")
 c = conn.cursor()
 
 # Create tables if they don't exist
