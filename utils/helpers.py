@@ -80,8 +80,8 @@ def get_current_bid():
             """SELECT c.player_name, c.player_role, c.team,
                     COALESCE(b.alias, ' '),
                     COALESCE(b.bid_amount, 0)
-                FROM bids b
-                    RIGHT JOIN current_player c
+                FROM current_player c
+                    LEFT JOIN bids b
                     ON c.player_name = b.player_name
                 WHERE c.id = (SELECT MAX(id) FROM current_player)
                 ORDER BY b.bid_amount DESC
