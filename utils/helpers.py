@@ -138,13 +138,14 @@ def get_current_bid():
 def check_user(alias):
 
     with get_db_engine() as conn:
-        results = conn.execute('SELECT * FROM users WHERE alias IN (?)',
+        # LIKE operator is case-insensitive
+        results = conn.execute("SELECT * FROM users WHERE alias LIKE (?)",
                                (alias, )).fetchall()
 
-    if len(results) == 0:
-        return False
-    else:
+    if len(results) == 1:
         return True
+    else:
+        return False
 
 
 def undo_last_bid(player_name):

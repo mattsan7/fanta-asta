@@ -5,7 +5,6 @@ import streamlit as st
 
 from utils import helpers
 
-# TODO: come gestire credenziali su streamlit? file .toml
 
 # Connect to the SQLite database
 conn = sqlite3.connect("database.db")
@@ -212,10 +211,7 @@ def main():
             place_bid(player_name, alias, bid_amount)
 
 
-    # TODO: aggiungere export bids per avere riassunto / backup
-    # TODO: come backup, permettere il caricamento della tabella bids o players e il ricalcolo della tabella users
-    # TODO: tabellina con ultimi acquisti e prezzi
-
-
 if __name__ == "__main__":
     main()
+
+# todo: best practices for DB connection (with clause)

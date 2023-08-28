@@ -5,8 +5,6 @@ import streamlit as st
 from utils import helpers
 
 
-# TODO: mantain access like in Home
-
 helpers.page_init("Admin")
 
 # st.session_state is used to keep user logged in
