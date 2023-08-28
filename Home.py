@@ -206,6 +206,8 @@ def main():
             st.error("Hai già acquistato il numero massimo di giocatori consentito per il ruolo!")
         elif auction_is_closed:
             st.error("L'asta è già stata chiusa!")
+        elif alias == current_bidder:
+            st.error("Hai già fatto la migliore offerta!")
         elif budget_is_over:
             st.error(f"Non hai abbastanza budget! Puoi offrire al massimo {available_budget}")
         elif bid_amount <= current_bid:
