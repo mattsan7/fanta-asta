@@ -119,7 +119,7 @@ def main():
             st.warning('Il nome inserito non è corretto', icon="⚠️")
         st.stop()
     else:
-        alias = st.session_state['alias'] = input_alias
+        alias = st.session_state['alias'] = input_alias.capitalize()
         st.success(f'Benvenuto {alias}!')
 
     # Get user input for auction item and initial price
