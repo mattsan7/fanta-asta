@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -37,7 +38,7 @@ budget = st.slider(label='Budget',
 
 alias = st.text_input('Nome utente:', placeholder='User')
 
-if st.button(label="Inserisci utente", key='user'):
+if st.button(label="Inserisci utente"):
     helpers.insert_user(alias, budget)
 
 
@@ -50,9 +51,13 @@ if upload_file is not None:
     df = pd.read_csv(upload_file, sep=';', index_col=False)
     st.write(df.head())
 
-    if st.button(label="Inserisci listone nel DB", key='listone'):
+    if st.button(label="Inserisci listone nel DB"):
         # Simulate bid placement
-        helpers.upload_players(df[['Ruolo', 'Nome', 'Squadra']])
+        df_to_upload = df[['Ruolo', 'Nome', 'Squadra']].copy()
+        df_to_upload['owner'] = None
+        df_to_upload['price'] = np.NaN
+
+        helpers.upload_listone(df_to_upload)
 
 
 # 3
@@ -195,7 +200,7 @@ with download2:
     )
 with download3:
     with helpers.get_db_engine() as conn:
-        results = conn.execute('SELECT * FROM bids ORDER BY id DESC').fetchall()
+        results = conn.execute('SELECT * FROM bids ORDER BY timestamp DESC').fetchall()
     col_order = ['id', 'alias', 'player_name', 'player_role', 'team', 'bid_amount', 'success', 'timestamp']
     df = pd.DataFrame(results, columns=col_order)
 
@@ -208,14 +213,35 @@ with download3:
 
 
 st.header('Upload')
-upload1, upload2, upload3, _ = st.columns([1, 1, 1, 1])
+upload1, upload2, upload3 = st.columns([1, 1, 1])
 
 with upload1:
-    upload_users_button = st.button("Upload Users")
+    upload_users_button = st.file_uploader("Upload Users")
+
+    if upload_users_button is not None:
+        df = pd.read_csv(upload_users_button, sep=',', index_col=False)
+        st.write(df.head())
+
+        if st.button(label="Inserisci tabella nel DB sostituendo i dati attuali?"):
+            helpers.upload_table(df, 'users')
 with upload2:
-    upload_players_button = st.button("Upload Players")
+    upload_players_button = st.file_uploader("Upload Players")
+
+    if upload_players_button is not None:
+        df = pd.read_csv(upload_players_button, sep=',', index_col=False)
+        st.write(df.head())
+
+        if st.button(label="Inserisci tabella nel DB sostituendo i dati attuali?"):
+            helpers.upload_table(df, 'players')
 with upload3:
-    upload_bids_button = st.button("Upload Bids")
+    upload_bids_button = st.file_uploader("Upload Bids")
+
+    if upload_bids_button is not None:
+        df = pd.read_csv(upload_bids_button, sep=',', index_col=False)
+        st.write(df.head())
+
+        if st.button(label="Inserisci tabella nel DB sostituendo i dati attuali?"):
+            helpers.upload_table(df, 'bid')
 
 
 st.header('Reset')

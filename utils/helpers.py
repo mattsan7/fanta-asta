@@ -25,7 +25,7 @@ def get_db_cursor(engine):
     return engine.cursor()
 
 
-def upload_players(file):
+def upload_listone(file):
 
     with get_db_engine() as conn:
         c = get_db_cursor(conn)
@@ -35,7 +35,7 @@ def upload_players(file):
 
         file_as_list = file.to_records(index=False).tolist()
 
-        c.executemany("INSERT INTO  players (player_role, player_name, team) VALUES (?, ?, ?)", file_as_list)
+        c.executemany("INSERT INTO  players (player_role, player_name, team, owner, price) VALUES (?, ?, ?, ?, ?)", file_as_list)
         conn.commit()
 
         sanity_check_results = c.execute(
@@ -46,6 +46,35 @@ def upload_players(file):
 
         if file.shape[0] == pd.DataFrame(sanity_check_results).shape[0]:
             st.success("Listone caricato correttamente")
+        else:
+            st.error("Qualcosa non ha funzionato: ricontrollare!")
+
+
+def upload_table(file, table_name):
+
+    with get_db_engine() as conn:
+        c = get_db_cursor(conn)
+
+        c.execute(f"DELETE FROM {table_name}")
+        conn.commit()
+
+        for _col in file.columns:
+            file[_col] = file[_col].astype(str)
+
+        file_as_list = file.to_records(index=False).tolist()
+
+        # c.executemany(f"INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?)", file_as_list)
+        c.execute(f"INSERT INTO {table_name} VALUES {', '.join(map(str, file_as_list))}")
+        conn.commit()
+
+        sanity_check_results = c.execute(
+            f"""SELECT *
+                FROM {table_name}
+            """
+        ).fetchall()
+
+        if file.shape[0] == pd.DataFrame(sanity_check_results).shape[0]:
+            st.success("Tabella caricata correttamente")
         else:
             st.error("Qualcosa non ha funzionato: ricontrollare!")
 
@@ -259,4 +288,3 @@ def reset_table(table_name):
         conn.commit()
 
         st.success(f"Tabella {table_name} resettata correttamente!")
-
