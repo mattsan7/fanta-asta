@@ -4,12 +4,13 @@ import sqlite3
 import streamlit as st
 
 
-def page_init(title: str):
+def page_init(title: str, **kwargs):
     st.set_page_config(
         page_title=f"{title} - Fanta Asta",
         page_icon="💰",
         initial_sidebar_state="auto",
         menu_items=None,
+        **kwargs
     )
 
     st.title(title)
