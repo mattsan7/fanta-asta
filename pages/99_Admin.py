@@ -5,7 +5,7 @@ import streamlit as st
 from utils import helpers
 
 
-helpers.page_init("Admin")
+helpers.page_init("Admin", layout='wide')
 
 # st.session_state is used to keep user logged in
 if 'alias' in st.session_state:
@@ -167,22 +167,22 @@ if view_users_button:
         results = conn.execute('SELECT * FROM users').fetchall()
     col_order = ['id', 'alias', 'number_gk', 'number_def', 'number_mid', 'number_att',
                  'budget', 'last_player_acquired', 'timestamp']
-    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True, width=1000)
 if view_players_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM players ORDER BY player_name').fetchall()
     col_order = ['id', 'player_name', 'player_role', 'team', 'owner', 'price']
-    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True, width=1000)
 if view_bids_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM bids ORDER BY id DESC').fetchall()
     col_order = ['id', 'alias', 'player_name', 'player_role', 'team', 'bid_amount', 'success', 'timestamp']
-    st.dataframe(pd.DataFrame(results, columns=col_order).head(10), hide_index=True)
+    st.dataframe(pd.DataFrame(results, columns=col_order).head(10), hide_index=True, width=1000)
 if view_current_player_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM current_player ORDER BY id DESC LIMIT 1').fetchall()
     col_order = ['id', 'player_name', 'player_role', 'team', 'timestamp']
-    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True, width=1000)
 
 st.header('Download')
 download1, download2, download3, _ = st.columns([1, 1, 1, 1])
