@@ -166,16 +166,12 @@ def main():
     else:
         bid_amount = current_bid
 
-    # TODO: inserire in una funzione
-
     results = c.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
                             FROM users WHERE alias IN (?)""", (alias, )).fetchall()
     alias_info = pd.DataFrame(results,
                               columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 
     auction_is_closed = helpers.check_ownership(player_name)
-
-    # TODO: file .py con le constants (e.g. budget, mapping, numero di giocatori per ruolo...)
 
     if player_role == 'P':
         role_is_full = (alias_info['number_gk'].values[0] >= 3)
@@ -218,10 +214,7 @@ def main():
 
     # TODO: aggiungere export bids per avere riassunto / backup
     # TODO: come backup, permettere il caricamento della tabella bids o players e il ricalcolo della tabella users
-    # TODO: visualizzare con emoji colorate il riempimento degli slot per ogni giocatore per ruolo
     # TODO: tabellina con ultimi acquisti e prezzi
-    # TODO: crediti residui
-    # TODO: admin può fare reset per riazzerare bids e users + owner e prezzo della tabella players
 
 
 if __name__ == "__main__":

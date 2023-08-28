@@ -7,6 +7,8 @@ from utils import helpers
 USER = "admin"
 PASSWORD = "admin"
 
+# TODO: credentials
+# TODO: mantain access like in Home
 
 helpers.page_init("Admin")
 
@@ -55,6 +57,10 @@ if upload_file is not None:
 
 # 3
 st.header('Gestione Asta')
+
+# refresh button (useless, just for refresh)
+st.button('Aggiorna')
+
 # Get current player name
 st.subheader("Seleziona giocatore")
 with helpers.get_db_engine() as conn:
@@ -142,33 +148,63 @@ if view_users_button:
         results = conn.execute('SELECT * FROM users').fetchall()
     col_order = ['id', 'alias', 'number_gk', 'number_def', 'number_mid', 'number_att',
                  'budget', 'last_player_acquired', 'timestamp']
-    st.write(pd.DataFrame(results, columns=col_order))
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
 if view_players_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM players ORDER BY player_name').fetchall()
     col_order = ['id', 'player_name', 'player_role', 'team', 'owner', 'price']
-    # st.write(pd.DataFrame(results).head(10))
-    st.dataframe(pd.DataFrame(results, columns=col_order))
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
 if view_bids_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM bids ORDER BY id DESC').fetchall()
     col_order = ['id', 'alias', 'player_name', 'player_role', 'team', 'bid_amount', 'success', 'timestamp']
-    st.write(pd.DataFrame(results, columns=col_order).head(10))
+    st.dataframe(pd.DataFrame(results, columns=col_order).head(10), hide_index=True)
 if view_current_player_button:
     with helpers.get_db_engine() as conn:
         results = conn.execute('SELECT * FROM current_player ORDER BY id DESC LIMIT 1').fetchall()
     col_order = ['id', 'player_name', 'player_role', 'team', 'timestamp']
-    st.write(pd.DataFrame(results, columns=col_order))
+    st.dataframe(pd.DataFrame(results, columns=col_order), hide_index=True)
 
 st.header('Download')
 download1, download2, download3, _ = st.columns([1, 1, 1, 1])
 
 with download1:
-    download_users_button = st.button("Download Users")
+    with helpers.get_db_engine() as conn:
+        results = conn.execute('SELECT * FROM users').fetchall()
+    col_order = ['id', 'alias', 'number_gk', 'number_def', 'number_mid', 'number_att',
+                 'budget', 'last_player_acquired', 'timestamp']
+    df = pd.DataFrame(results, columns=col_order)
+
+    st.download_button(
+        label="Download Users",
+        data=df.to_csv(index=False).encode('utf-8'),
+        file_name='Users.csv',
+        mime='text/csv',
+    )
 with download2:
-    download_players_button = st.button("Download Players")
+    with helpers.get_db_engine() as conn:
+        results = conn.execute('SELECT * FROM players ORDER BY player_name').fetchall()
+    col_order = ['id', 'player_name', 'player_role', 'team', 'owner', 'price']
+    df = pd.DataFrame(results, columns=col_order)
+
+    st.download_button(
+        label="Download Players",
+        data=df.to_csv(index=False).encode('utf-8'),
+        file_name='Players.csv',
+        mime='text/csv',
+    )
 with download3:
-    download_bids_button = st.button("Download Bids")
+    with helpers.get_db_engine() as conn:
+        results = conn.execute('SELECT * FROM bids ORDER BY id DESC').fetchall()
+    col_order = ['id', 'alias', 'player_name', 'player_role', 'team', 'bid_amount', 'success', 'timestamp']
+    df = pd.DataFrame(results, columns=col_order)
+
+    st.download_button(
+        label="Download Bids",
+        data=df.to_csv(index=False).encode('utf-8'),
+        file_name='Bids.csv',
+        mime='text/csv',
+    )
 
 
 st.header('Upload')
