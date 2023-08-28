@@ -218,8 +218,6 @@ def close_bid(player_name):
                      """, (alias, )).fetchall(),
                      columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 
-            st.write(current_alias_situation)
-
             n_gk = current_alias_situation['number_gk'].values[0]
             n_def = current_alias_situation['number_def'].values[0]
             n_mid = current_alias_situation['number_mid'].values[0]

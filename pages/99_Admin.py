@@ -5,26 +5,50 @@ import streamlit as st
 from utils import helpers
 
 
-USER = "admin"
-PASSWORD = "admin"
-
-# TODO: credentials
 # TODO: mantain access like in Home
 
 helpers.page_init("Admin")
 
-# Page layout
-col1, col2 = st.columns(2)
+# st.session_state is used to keep user logged in
+if 'alias' in st.session_state:
+    if st.session_state['alias'] == st.secrets['super_user']:
+        st.success('Accesso eseguito correttamente')
 
-usr = col1.text_input("Username", placeholder='Username')  # type='password')
-pwd = col2.text_input("Password", placeholder='Password', type="password")
+    else:
+        # Page layout
+        col1, col2 = st.columns(2)
 
-# Show page only to authenticated user
-if not (usr == USER and pwd == PASSWORD):
-    st.warning("Effettuare il login", icon="⚠️")
-    st.stop()
+        usr = col1.text_input("Username", placeholder='Username')  # type='password')
+        pwd = col2.text_input("Password", placeholder='Password', type="password")
 
-st.success('Accesso eseguito correttamente')
+        # Show page only to authenticated user
+        if not (usr == st.secrets['admin_user'] and pwd == st.secrets['admin_pass']):
+            st.warning("Effettuare il login", icon="⚠️")
+            st.stop()
+else:
+    # Page layout
+    col1, col2 = st.columns(2)
+
+    usr = col1.text_input("Username", placeholder='Username')  # type='password')
+    pwd = col2.text_input("Password", placeholder='Password', type="password")
+
+    # Show page only to authenticated user
+    if not (usr == st.secrets['admin_user'] and pwd == st.secrets['admin_pass']):
+        st.warning("Effettuare il login", icon="⚠️")
+        st.stop()
+
+# # Page layout
+# col1, col2 = st.columns(2)
+#
+# usr = col1.text_input("Username", placeholder='Username')  # type='password')
+# pwd = col2.text_input("Password", placeholder='Password', type="password")
+#
+# # Show page only to authenticated user
+# if not (usr == st.secrets['admin_user'] and pwd == st.secrets['admin_pass']):
+#     st.warning("Effettuare il login", icon="⚠️")
+#     st.stop()
+#
+# st.success('Accesso eseguito correttamente')
 
 # Admin Sections
 # --------------
