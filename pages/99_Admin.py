@@ -23,6 +23,8 @@ if 'alias' in st.session_state:
         if not (usr == st.secrets['admin_user'] and pwd == st.secrets['admin_pass']):
             st.warning("Effettuare il login", icon="⚠️")
             st.stop()
+
+        st.success('Accesso eseguito correttamente')
 else:
     # Page layout
     col1, col2 = st.columns(2)
@@ -35,18 +37,8 @@ else:
         st.warning("Effettuare il login", icon="⚠️")
         st.stop()
 
-# # Page layout
-# col1, col2 = st.columns(2)
-#
-# usr = col1.text_input("Username", placeholder='Username')  # type='password')
-# pwd = col2.text_input("Password", placeholder='Password', type="password")
-#
-# # Show page only to authenticated user
-# if not (usr == st.secrets['admin_user'] and pwd == st.secrets['admin_pass']):
-#     st.warning("Effettuare il login", icon="⚠️")
-#     st.stop()
-#
-# st.success('Accesso eseguito correttamente')
+    st.success('Accesso eseguito correttamente')
+
 
 # Admin Sections
 # --------------

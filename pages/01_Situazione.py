@@ -1,15 +1,10 @@
 import pandas as pd
-import sqlite3
 import streamlit as st
 # import plotly.express as px
 
 from utils import helpers
 
 helpers.page_init('Situazione', layout='wide')
-
-# Connect to the SQLite database
-conn = sqlite3.connect("database.db")
-c = conn.cursor()
 
 # Get user input for auction item and initial price
 player_name, player_role, team, current_bidder, current_bid = helpers.get_current_bid()
@@ -28,8 +23,10 @@ st.write(' ')
 
 st.write('')
 
-results = c.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
-                            FROM users""").fetchall()
+with helpers.get_db_engine() as conn:
+    results = conn.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
+                                FROM users""").fetchall()
+
 alias_info = pd.DataFrame(results,
                           columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 

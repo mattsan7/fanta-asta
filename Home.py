@@ -7,93 +7,91 @@ from utils import helpers
 
 
 # Connect to the SQLite database
-conn = sqlite3.connect("database.db")
-c = conn.cursor()
-
-# Create tables if they don't exist
-c.execute(
+with helpers.get_db_engine() as conn:
+    # Create tables if they don't exist
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            alias TEXT UNIQUE,
+            number_gk INTEGER,
+            number_def INTEGER,
+            number_mid INTEGER,
+            number_att INTEGER,
+            budget INTEGER,
+            last_player_acquired TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
     """
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        alias TEXT UNIQUE,
-        number_gk INTEGER,
-        number_def INTEGER,
-        number_mid INTEGER,
-        number_att INTEGER,
-        budget INTEGER,
-        last_player_acquired TEXT,
-        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-"""
-)
 
-c.execute(
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bids (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            alias TEXT,
+            player_name TEXT,
+            player_role TEXT,
+            team TEXT,
+            bid_amount INTEGER,
+            success INTEGER,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
     """
-    CREATE TABLE IF NOT EXISTS bids (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        alias TEXT,
-        player_name TEXT,
-        player_role TEXT,
-        team TEXT,
-        bid_amount INTEGER,
-        success INTEGER,
-        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-"""
-)
 
-c.execute(
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS players (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_name TEXT,
+            player_role TEXT,
+            team TEXT,
+            owner TEXT,
+            price INTEGER
+        )
     """
-    CREATE TABLE IF NOT EXISTS players (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        player_name TEXT,
-        player_role TEXT,
-        team TEXT,
-        owner TEXT,
-        price INTEGER
     )
-"""
-)
 
-c.execute(
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS current_player (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_name TEXT,
+            player_role TEXT,
+            team TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
     """
-    CREATE TABLE IF NOT EXISTS current_player (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        player_name TEXT,
-        player_role TEXT,
-        team TEXT,
-        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-"""
-)
 
 
 # Function to simulate bidding logic (replace this with your backend implementation)
 def place_bid(player_name, bidder, bid_amount):
     # You can implement logic to handle bids, store them in a database, etc.
+    with helpers.get_db_engine() as conn:
+        results = conn.execute(
+            "SELECT player_role, team FROM players WHERE player_name IN (?)",
+            (player_name, ),
+        ).fetchall()
 
-    results = c.execute(
-        "SELECT player_role, team FROM players WHERE player_name IN (?)",
-        (player_name, ),
-    ).fetchall()
+        player_role = results[0][0]
+        team = results[0][1]
 
-    player_role = results[0][0]
-    team = results[0][1]
+        # st.write(f"{player_name} - Ruolo {player_role} - {team}")
 
-    # st.write(f"{player_name} - Ruolo {player_role} - {team}")
-
-    c.execute(
-        "INSERT INTO bids (alias, player_name, player_role, team, bid_amount) "
-        "VALUES (?, ?, ?, ?, ?)",
-        (
-            bidder,
-            player_name,
-            player_role,
-            team,
-            bid_amount
-        ),
-    )
-    conn.commit()
+        conn.execute(
+            "INSERT INTO bids (alias, player_name, player_role, team, bid_amount) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (
+                bidder,
+                player_name,
+                player_role,
+                team,
+                bid_amount
+            ),
+        )
+        conn.commit()
 
     st.experimental_rerun()
 
@@ -165,8 +163,9 @@ def main():
     else:
         bid_amount = current_bid
 
-    results = c.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
-                            FROM users WHERE alias IN (?)""", (alias, )).fetchall()
+    with helpers.get_db_engine() as conn:
+        results = conn.execute("""SELECT alias, number_gk, number_def, number_mid, number_att, budget
+                                FROM users WHERE alias IN (?)""", (alias, )).fetchall()
     alias_info = pd.DataFrame(results,
                               columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 
@@ -213,5 +212,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# todo: best practices for DB connection (with clause)

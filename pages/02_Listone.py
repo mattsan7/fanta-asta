@@ -1,7 +1,6 @@
 import streamlit as st
-from pandas.api.types import is_categorical_dtype, is_datetime64_any_dtype, is_numeric_dtype, is_object_dtype
+# from pandas.api.types import is_categorical_dtype, is_datetime64_any_dtype, is_numeric_dtype, is_object_dtype
 import pandas as pd
-import sqlite3
 
 from utils import helpers
 
@@ -11,12 +10,13 @@ helpers.page_init('Listone', layout='wide')
 # credits to: https://blog.streamlit.io/auto-generate-a-dataframe-filtering-ui-in-streamlit-with-filter_dataframe/
 
 
-def filter_dataframe(df: pd.DataFrame, admissible_columns: list=None) -> pd.DataFrame:
+def filter_dataframe(df: pd.DataFrame, admissible_columns: list = None) -> pd.DataFrame:
     """
     Adds a UI on top of a dataframe to let viewers filter columns
 
     Args:
         df (pd.DataFrame): Original dataframe
+        admissible_columns (list):
 
     Returns:
         pd.DataFrame: Filtered dataframe
@@ -27,7 +27,6 @@ def filter_dataframe(df: pd.DataFrame, admissible_columns: list=None) -> pd.Data
         return df
 
     df = df.copy()
-
 
     modification_container = st.container()
 
@@ -40,7 +39,7 @@ def filter_dataframe(df: pd.DataFrame, admissible_columns: list=None) -> pd.Data
         for column in to_filter_columns:
             left, right = st.columns((1, 20))
             # Treat columns with < 10 unique values as categorical
-            if is_categorical_dtype(df[column]) or df[column].nunique() < 10:
+            if df[column].nunique() < 10:
                 user_cat_input = right.multiselect(
                     f"Valori in {column}",
                     df[column].unique(),
@@ -60,11 +59,10 @@ def filter_dataframe(df: pd.DataFrame, admissible_columns: list=None) -> pd.Data
     return df
 
 
-conn = sqlite3.connect("database.db")
-c = conn.cursor()
+with helpers.get_db_engine() as conn:
+    results = conn.execute("""SELECT player_name, player_role, team, owner, price FROM players""").fetchall()
 
-results = c.execute("""SELECT player_name, player_role, team, owner, price FROM players""").fetchall()
-df = pd.DataFrame(results, columns=['Nome', 'Ruolo', 'Squadra', 'Proprietario', 'Costo'])
+listone = pd.DataFrame(results, columns=['Nome', 'Ruolo', 'Squadra', 'Proprietario', 'Costo'])
 
-st.dataframe(filter_dataframe(df, admissible_columns=['Nome', 'Ruolo', 'Squadra', 'Proprietario']),
+st.dataframe(filter_dataframe(listone, admissible_columns=['Nome', 'Ruolo', 'Squadra', 'Proprietario']),
              hide_index=True, width=1000)

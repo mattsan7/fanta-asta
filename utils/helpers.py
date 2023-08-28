@@ -28,17 +28,15 @@ def get_db_cursor(engine):
 def upload_listone(file):
 
     with get_db_engine() as conn:
-        c = get_db_cursor(conn)
-
-        c.execute("DELETE FROM players")
+        conn.execute("DELETE FROM players")
         conn.commit()
 
         file_as_list = file.to_records(index=False).tolist()
 
-        c.executemany("INSERT INTO  players (player_role, player_name, team, owner, price) VALUES (?, ?, ?, ?, ?)", file_as_list)
+        conn.executemany("INSERT INTO  players (player_role, player_name, team, owner, price) VALUES (?, ?, ?, ?, ?)", file_as_list)
         conn.commit()
 
-        sanity_check_results = c.execute(
+        sanity_check_results = conn.execute(
             """SELECT *
                 FROM players
             """
@@ -53,9 +51,7 @@ def upload_listone(file):
 def upload_table(file, table_name):
 
     with get_db_engine() as conn:
-        c = get_db_cursor(conn)
-
-        c.execute(f"DELETE FROM {table_name}")
+        conn.execute(f"DELETE FROM {table_name}")
         conn.commit()
 
         for _col in file.columns:
@@ -63,11 +59,11 @@ def upload_table(file, table_name):
 
         file_as_list = file.to_records(index=False).tolist()
 
-        # c.executemany(f"INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?)", file_as_list)
-        c.execute(f"INSERT INTO {table_name} VALUES {', '.join(map(str, file_as_list))}")
+        # conn.executemany(f"INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?)", file_as_list)
+        conn.execute(f"INSERT INTO {table_name} VALUES {', '.join(map(str, file_as_list))}")
         conn.commit()
 
-        sanity_check_results = c.execute(
+        sanity_check_results = conn.execute(
             f"""SELECT *
                 FROM {table_name}
             """
