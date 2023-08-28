@@ -33,21 +33,18 @@ results = c.execute("""SELECT alias, number_gk, number_def, number_mid, number_a
 alias_info = pd.DataFrame(results,
                           columns=['alias', 'number_gk', 'number_def', 'number_mid', 'number_att', 'budget'])
 
-col1, col2, col3 = st.columns([0.1, 0.1, 1])
+# col1, col2, col3 = st.columns([0.1, 0.1, 1])
 
 for _n, _row in alias_info.iterrows():
-    with col1:
-        st.write(_row['alias'])
-    with col2:
-        st.markdown(f"**{_row['budget']}**")
-    with col3:
-        gk_str = '🟦 ' * _row['number_gk'] + '⬜️ ' * (3 - _row['number_gk'])
-        def_str = '🟩 ' * _row['number_def'] + '⬜️ ' * (8 - _row['number_def'])
-        mid_str = '🟨 ' * _row['number_mid'] + '⬜️ ' * (8 - _row['number_mid'])
-        att_str = '🟥 ' * _row['number_att'] + '⬜️ ' * (6 - _row['number_att'])
-        st.write(gk_str + def_str + mid_str + att_str)
+    st.markdown(f"{_row['alias']} [**{_row['budget']}**]")
 
-        # st.write('🟦 ' * 3 + '🟩 ' * 8 + '🟨 ' * 8 + '🟥 ' * 6 + '🔲 ' + '⬜️ ')
+    gk_str = '🟦 ' * _row['number_gk'] + '⬜️ ' * (3 - _row['number_gk'])
+    def_str = '🟩 ' * _row['number_def'] + '⬜️ ' * (8 - _row['number_def'])
+    mid_str = '🟨 ' * _row['number_mid'] + '⬜️ ' * (8 - _row['number_mid'])
+    att_str = '🟥 ' * _row['number_att'] + '⬜️ ' * (6 - _row['number_att'])
+    st.write(gk_str + def_str + mid_str + att_str)
+
+    # st.write('🟦 ' * 3 + '🟩 ' * 8 + '🟨 ' * 8 + '🟥 ' * 6 + '🔲 ' + '⬜️ ')
 
 
 # fig_P = px.pie(pd.DataFrame({'P': [1/3, 2/3], 'Names': ['Presi', 'Da Prendere']}), title='P',
