@@ -15,10 +15,10 @@ c = conn.cursor()
 player_name, player_role, team, current_bidder, current_bid = helpers.get_current_bid()
 
 # TODO: better visualization (es. background azzurro, immagini, icone...)
-st.title(f'> > > > {player_name} [{team[:3].upper()}] < < < <')
+st.title(f':red[> > > >] {player_name} [{team[:3].upper()}] :red[< < < <]')
 
 # Display auction details
-st.header(f"Prezzo attuale: {current_bid} [{current_bidder}]")
+st.header(f"Prezzo attuale: :blue[{current_bid} [{current_bidder}]]")
 
 # refresh button (useless, just for refresh)
 st.button('Aggiorna')

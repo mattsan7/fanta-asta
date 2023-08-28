@@ -63,7 +63,9 @@ with helpers.get_db_engine() as conn:
 
 player_name = st.selectbox(
     label='Seleziona giocatore:',
-    options=['---'] + player_df['player_name'].sort_values().tolist())
+    options=['---'] + player_df['player_name'].sort_values().tolist(),
+)
+
 if player_name == '---':
     player_name = None
 else:
