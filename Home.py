@@ -105,18 +105,24 @@ helpers.page_init('Home')
 
 
 def main():
-    # TODO: refresh button? (pointless)
 
-    alias = st.text_input('Inserisci il tuo nome:', placeholder='Username')
-    if alias == '':
-        st.warning('Effettuare il login', icon="⚠️")
+    # st.session_state is used to keep user logged in
+    if 'alias' not in st.session_state:
+        input_alias = st.text_input('Inserisci il tuo nome:', placeholder='Username')
+        if input_alias == '':
+            st.warning('Effettuare il login', icon="⚠️")
+            st.stop()
+    else:
+        input_alias = st.session_state['alias']
 
-    is_initialized = helpers.check_user(alias)
-    if not is_initialized:
-        if alias != '':
+    is_initialized = helpers.check_user(input_alias)
+
+    if (not is_initialized) & ('alias' not in st.session_state):
+        if input_alias != '':
             st.warning('Il nome inserito non è corretto', icon="⚠️")
         st.stop()
     else:
+        alias = st.session_state['alias'] = input_alias
         st.success(f'Benvenuto {alias}!')
 
     # Get user input for auction item and initial price
@@ -124,6 +130,9 @@ def main():
 
     # TODO: better visualization (es. background azzurro, immagini, icone...)
     st.title(f'> > > > {player_name} [{team[:3].upper()}] < < < <')
+
+    # refresh button (useless, just for refresh)
+    st.button('Aggiorna')
 
     # Display auction details
     st.header(f"Prezzo attuale: {current_bid} [{current_bidder}]")
