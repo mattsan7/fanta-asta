@@ -33,7 +33,7 @@ alias_info = pd.DataFrame(results,
 # col1, col2, col3 = st.columns([0.1, 0.1, 1])
 
 for _n, _row in alias_info.iterrows():
-    st.markdown(f"{_row['alias']} [**{_row['budget']}**]")
+    st.markdown(f"{_row['alias']}")  # [**{_row['budget']}**]")
 
     gk_str = '🟦 ' * _row['number_gk'] + '⬜️ ' * (3 - _row['number_gk'])
     def_str = '🟩 ' * _row['number_def'] + '⬜️ ' * (8 - _row['number_def'])
